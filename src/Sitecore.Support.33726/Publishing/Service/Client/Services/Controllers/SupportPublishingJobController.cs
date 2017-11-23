@@ -41,7 +41,7 @@
     private readonly IUserProfile _userProfile;
 
     public SupportPublishingJobController() : this(
-            new PublishingJobRepository(
+            new Sitecore.Support.Publishing.Service.Client.Services.Data.PublishingJobRepository(
                 new SitecoreSettingsWrapper(),
                 new PublishingJobProviderFactory(),
                 new ManifestProviderFactory(), 

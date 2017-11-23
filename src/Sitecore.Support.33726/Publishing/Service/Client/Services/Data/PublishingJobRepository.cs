@@ -170,7 +170,7 @@
       entity.TimeRequested = DateUtil.GetShortIsoDateTime(DateTime.UtcNow);
       entity.Metadata = entity.Metadata ?? new Dictionary<string, string>();
 
-      var publishJob = entity.ToJob(_databaseFactory);
+      var publishJob = ToJob(entity, _databaseFactory);
       publishJob.Options.SetPublishType(entity.Type.DisplayName);
       publishJob.Options.SetDetectCloneSources(entity.Type == PublishJobType.SingleItem || entity.Type == PublishJobType.Incremental);
 
@@ -276,7 +276,7 @@
     {
       Condition.Requires(entity, "entity").IsNotNull();
 
-      PublishJob job = entity.ToJob(_databaseFactory);
+      PublishJob job = ToJob(entity, _databaseFactory);
       Task.Run(async () => { await _jobProvider.Update(job).ConfigureAwait(false); }).Wait();
     }
 
@@ -483,6 +483,59 @@
       var targets = PublishManager.GetPublishingTargets(database);
 
       return targets.ToArray();
+    }
+
+    private PublishJob ToJob(PublishingJobEntity entity, IDatabaseFactory factory)
+    {
+      var publishingTargets = entity.Targets.Select(t => t.Id).ToArray();
+      var publishingLanguages = entity.Languages.Select(l => l.Code).ToArray();
+
+      Guid? itemId = null;
+
+      if (!string.IsNullOrEmpty(entity.ItemId))
+      {
+        itemId = new Guid(entity.ItemId);
+      }
+
+      var jobOptions = new Sitecore.Framework.Publishing.PublishJobQueue.PublishOptions(
+          entity.IncludeDescendantItems,
+          entity.IncludeRelatedItems,
+          entity.RequestedBy,
+          "en", // TODO: This should be the context language.
+          publishingLanguages,
+          publishingTargets,
+          itemId,
+          entity.Metadata,
+          entity.SourceDatabase);
+
+      var jobId = Guid.NewGuid();
+
+      if (!string.IsNullOrEmpty(entity.Id))
+      {
+        Guid.TryParse(entity.Id, out jobId);
+      }
+
+      var timeRequested = DateUtil.ParseDateTime(entity.TimeRequested, DateTime.UtcNow);
+      var timeStarted = DateUtil.ParseDateTime(entity.TimeStarted, DateTime.UtcNow);
+      var timeStopped = DateUtil.ParseDateTime(entity.TimeStopped, DateTime.UtcNow);
+
+      var jobStatus = PublishJobStatus.Queued;
+
+      if (!string.IsNullOrEmpty(entity.Status))
+      {
+        jobStatus = PublishJobStatusExtensions.ConvertToPublishJobStatus(entity.Status);
+      }
+
+      return new PublishJob(
+          jobId,
+          jobStatus,
+          entity.Status,
+          timeRequested,
+          timeStarted,
+          timeStopped,
+          entity.NumberOfItems,
+          entity.ManifestIdList,
+          jobOptions);
     }
   }
 }

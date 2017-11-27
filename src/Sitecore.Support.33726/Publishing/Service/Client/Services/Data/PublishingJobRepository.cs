@@ -303,7 +303,6 @@
       }
 
       var selectedTargets = new List<PublishingTarget>();
-
       foreach (var publishingTarget in job.Options.Targets)
       {
         var target = allTargets.FirstOrDefault(t => t.Name == publishingTarget);
@@ -315,12 +314,12 @@
 
           selectedTargets.Add(new PublishingTarget()
           {
-            Id = target.ID.ToString(),
+            Id = target.Name,
             Name = target.DisplayName,
             Status = GetTargetStatusTranslation(job, status)
           });
         }
-      }
+      }  
 
       return new PublishingJobEntity
       {

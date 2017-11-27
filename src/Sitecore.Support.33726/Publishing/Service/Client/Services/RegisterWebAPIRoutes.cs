@@ -10,7 +10,12 @@
       RouteTable.Routes.MapHttpRoute(
         name: "SupportPublishingJob",
         routeTemplate: "sitecore/api/ssc/publishing/jobs/{id}/{action}",
-        defaults: new { controller = "SupportPublishingJob", action = "DefaultAction" });
+        defaults: new
+        {
+          controller = "SupportPublishingJob",
+          id = System.Web.Http.RouteParameter.Optional,
+          action = "DefaultAction"
+        });
     }
   }
 }

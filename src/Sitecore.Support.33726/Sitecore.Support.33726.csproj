@@ -84,7 +84,7 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Net.Http">
       <HintPath>..\packages\SC.System.Net.Http.8.1.3\lib\System.Net.Http.dll</HintPath>
-      <Private>True</Private>
+      <Private>False</Private>
     </Reference>
     <Reference Include="System.Net.Http.Formatting, Version=5.2.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\SC.System.Net.Http.Formatting.8.2.5\lib\System.Net.Http.Formatting.dll</HintPath>
